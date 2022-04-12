@@ -1,7 +1,10 @@
 package util;
 
 import model.CipherType;
+import security.Caesar;
+import security.Substitution;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -24,16 +27,39 @@ public class CipherUtils {
         return cipherTypes;
     }
 
-    public static String encrypt(String plainText, int cipherType) {
+    public static CipherType get(String cipherName) {
+        ArrayList<CipherType> cipherTypes = get();
+
+        for (CipherType type : cipherTypes) {
+            if (type.getName().equals(cipherName))
+                return type;
+        }
+
+        return null;
+    }
+
+    public static String encrypt(String plainText, int cipherType, String key) {
         String cipherText = null;
 
         switch (cipherType) {
             case CAESAR:
+                int shift = 0;
 
+                try {
+                    shift = Integer.valueOf(key);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null,
+                            "Khóa phải là số nguyên",
+                            "Lỗi",
+                            JOptionPane.ERROR_MESSAGE);
+                    break;
+                }
+
+                cipherText = Caesar.encrypt(plainText, shift);
                 break;
 
             case SUBSTITUTION:
-
+                cipherText = Substitution.encode(plainText, key);
                 break;
 
             case AFFINE:
@@ -55,16 +81,28 @@ public class CipherUtils {
         return cipherText;
     }
 
-    public static String decrypt(String cipherText, int cipherType) {
+    public static String decrypt(String cipherText, int cipherType, String key) {
         String plainText = null;
 
         switch (cipherType) {
             case CAESAR:
+                int shift = 0;
 
+                try {
+                    shift = Integer.valueOf(key);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null,
+                            "Khóa phải là số nguyên",
+                            "Lỗi",
+                            JOptionPane.ERROR_MESSAGE);
+                    break;
+                }
+
+                plainText = Caesar.decrypt(cipherText, shift);
                 break;
 
             case SUBSTITUTION:
-
+                plainText = Substitution.decode(cipherText, key);
                 break;
 
             case AFFINE:

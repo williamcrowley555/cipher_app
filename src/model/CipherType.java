@@ -27,4 +27,12 @@ public class CipherType {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return "CipherType{" +
+                "code=" + code +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Enumeration;
 
 public class MainGUI extends JFrame {
 
@@ -20,6 +21,8 @@ public class MainGUI extends JFrame {
     private JPanel pnlCipherTypes;
     private JLabel lblKey;
     private JTextArea txtKey;
+
+    private ButtonGroup cipherGroup;
 
     public MainGUI() {
         super();
@@ -34,7 +37,7 @@ public class MainGUI extends JFrame {
     }
 
     public void addCipherTypes(JPanel panel, ArrayList<CipherType> cipherTypes) {
-        ButtonGroup cipherGroup = new ButtonGroup();
+        cipherGroup = new ButtonGroup();
 
         for (int i = 0; i < cipherTypes.size(); ++i) {
             JRadioButton radioBtn = new JRadioButton(cipherTypes.get(i).getName());
@@ -46,19 +49,54 @@ public class MainGUI extends JFrame {
         }
     }
 
+    public String getSelectedButtonText(ButtonGroup buttonGroup) {
+        for (Enumeration<AbstractButton> buttons = buttonGroup.getElements(); buttons.hasMoreElements();) {
+            AbstractButton button = buttons.nextElement();
+
+            if (button.isSelected()) {
+                return button.getText();
+            }
+        }
+
+        return null;
+    }
+
     public void initComponents() {
         addCipherTypes(pnlCipherTypes, CipherUtils.get());
 
         btnEncryption.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                String plainText = txtInput.getText();
+                String key = txtKey.getText();
 
+                if (plainText != null && !plainText.isEmpty() &&
+                        key != null && !key.isEmpty()) {
+                    String selectedCipherName = getSelectedButtonText(cipherGroup);
+                    CipherType selectedCipher = CipherUtils.get(selectedCipherName);
+
+                    String cipherText = CipherUtils.encrypt(plainText, selectedCipher.getCode(), key);
+
+                    txtOutput.setText(cipherText);
+                }
             }
         });
 
         btnDecryption.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                String cipherText = txtInput.getText();
+                String key = txtKey.getText();
+
+                if (cipherText != null && !cipherText.isEmpty() &&
+                        key != null && !key.isEmpty()) {
+                    String selectedCipherName = getSelectedButtonText(cipherGroup);
+                    CipherType selectedCipher = CipherUtils.get(selectedCipherName);
+
+                    String plainText = CipherUtils.decrypt(cipherText, selectedCipher.getCode(), key);
+
+                    txtOutput.setText(plainText);
+                }
 
             }
         });
