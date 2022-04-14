@@ -1,78 +1,207 @@
 package security;
 
+import java.util.Scanner;
+
 public class Hill {
-    static void getKeyMatrix(String key, int keyMatrix[][])
-    {
-        int k = 0;
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 3; j++)
-            {
-                keyMatrix[i][j] = (key.charAt(k)) % 65;
-                k++;
+    private static String cipherDecryption(String msg, String key) {
+        msg = msg.replaceAll("\\s" , "");
+        msg = msg.toUpperCase();
+
+        // if irregular length, then perform padding
+        int lenChk = 0;
+        if (msg.length() % 2 != 0){
+            msg += "0";
+            lenChk = 1;
+        }
+
+        // message to matrices
+        int[][] msg2D = new int[2][msg.length()];
+        int itr1 = 0;
+        int itr2 = 0;
+        for (int i = 0; i < msg.length(); i++){
+            if (i%2 == 0){
+                msg2D[0][itr1] = ((int)msg.charAt(i)) - 65;
+                itr1++;
+            } else {
+                msg2D[1][itr2] = ((int)msg.charAt(i)) - 65;
+                itr2++;
+            } // if-else
+        } // for
+
+        key = key.replaceAll("\\s","");
+        key = key.toUpperCase();
+
+        // key to 2x2 matrix
+        int[][] key2D = new int[2][2];
+        int itr3 = 0;
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                key2D[i][j] = (int)key.charAt(itr3)-65;
+                itr3++;
             }
         }
-    }
 
-    // Following function encrypts the message
-    static void encrypt(int cipherMatrix[][],
-                        int keyMatrix[][],
-                        int messageVector[][])
-    {
-        int x, i, j;
-        for (i = 0; i < 3; i++)
-        {
-            for (j = 0; j < 1; j++)
-            {
-                cipherMatrix[i][j] = 0;
+        int deter = key2D[0][0] * key2D[1][1] - key2D[0][1] * key2D[1][0];
+        deter = moduloFunc(deter, 26);
 
-                for (x = 0; x < 3; x++)
-                {
-                    cipherMatrix[i][j] +=
-                            keyMatrix[i][x] * messageVector[x][j];
-                }
+        // multiplicative inverse of key matrix
+        int mulInverse = -1;
+        for (int i = 0; i < 26; i++) {
+            int tempInv = deter * i;
+            if (moduloFunc(tempInv, 26) == 1){
+                mulInverse = i;
+                break;
+            } else {
+                continue;
+            } // if-else
+        } // for
 
-                cipherMatrix[i][j] = cipherMatrix[i][j] % 26;
+        int swapTemp = key2D[0][0];
+        key2D[0][0] = key2D[1][1];
+        key2D[1][1] = swapTemp;
+
+        // changing signs
+        key2D[0][1] *= -1;
+        key2D[1][0] *= -1;
+
+        key2D[0][1] = moduloFunc(key2D[0][1], 26);
+        key2D[1][0] = moduloFunc(key2D[1][0], 26);
+
+        // multiplying multiplicative inverse with adjugate matrix
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                key2D[i][j] *= mulInverse;
             }
         }
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                key2D[i][j] = moduloFunc(key2D[i][j], 26);
+            }
+        }
+
+        String decrypText = "";
+        int itrCount = msg.length() / 2;
+        if (lenChk == 0){
+            // if msg length % 2 = 0
+            for (int i = 0; i < itrCount; i++) {
+                int temp1 = msg2D[0][i] * key2D[0][0] + msg2D[1][i] * key2D[0][1];
+                decrypText += (char)((temp1 % 26) + 65);
+                int temp2 = msg2D[0][i] * key2D[1][0] + msg2D[1][i] * key2D[1][1];
+                decrypText += (char)((temp2 % 26) + 65);
+            }
+        } else {
+            // if msg length % 2 != 0 (irregular length msg)
+            for (int i = 0; i < itrCount-1; i++) {
+                int temp1 = msg2D[0][i] * key2D[0][0] + msg2D[1][i] * key2D[0][1];
+                decrypText += (char)((temp1 % 26) + 65);
+                int temp2 = msg2D[0][i] * key2D[1][0] + msg2D[1][i] * key2D[1][1];
+                decrypText += (char)((temp2 % 26) + 65);
+            }
+        }
+        return decrypText;
     }
 
-    // Function to implement Hill Cipher
-    static void HillCipher(String message, String key)
-    {
-        // Get key matrix from the key string
-        int [][]keyMatrix = new int[3][3];
-        getKeyMatrix(key, keyMatrix);
+    private static String cipherEncryption(String msg, String key) {
 
-        int [][]messageVector = new int[3][1];
+        msg = msg.replaceAll("\\s" , "");
+        msg = msg.toUpperCase();
 
-        // Generate vector for the message
-        for (int i = 0; i < 3; i++)
-            messageVector[i][0] = (message.charAt(i)) % 65;
+        // if irregular length, then perform padding
+        int lenChk = 0;
+        if (msg.length() % 2 != 0){
+            msg += "0";
+            lenChk = 1;
+        }
 
-        int [][]cipherMatrix = new int[3][1];
+        // message to matrices
+        int[][] msg2D = new int[2][msg.length()];
+        int itr1 = 0;
+        int itr2 = 0;
+        for (int i = 0; i < msg.length(); i++){
+            if (i%2 == 0){
+                msg2D[0][itr1] = ((int)msg.charAt(i)) - 65;
+                itr1++;
+            } else {
+                msg2D[1][itr2] = ((int)msg.charAt(i)) - 65;
+                itr2++;
+            } // if-else
+        } // for
 
-        // Following function generates
-        // the encrypted vector
-        encrypt(cipherMatrix, keyMatrix, messageVector);
+        key = key.replaceAll("\\s","");
+        key = key.toUpperCase();
 
-        String CipherText="";
+        // key to 2x2 matrix
+        int[][] key2D = new int[2][2];
+        int itr3 = 0;
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                key2D[i][j] = (int)key.charAt(itr3)-65;
+                itr3++;
+            }
+        }
 
-        for (int i = 0; i < 3; i++)
-            CipherText += (char)(cipherMatrix[i][0] + 65);
+        int deter = key2D[0][0] * key2D[1][1] - key2D[0][1] * key2D[1][0];
+        deter = moduloFunc(deter, 26);
 
-        // Finally print the ciphertext
-        System.out.print(" Ciphertext:" + CipherText + "\n");
+        int mulInverse = -1;
+        for (int i = 0; i < 26; i++) {
+            int tempInv = deter * i;
+            if (moduloFunc(tempInv, 26) == 1){
+                mulInverse = i;
+                break;
+            } else {
+                continue;
+            } // if-else
+        } // for
+
+        if (mulInverse == -1){
+            System.out.println("invalid key");
+            System.exit(1);
+        }
+
+        String encrypText = "";
+        int itrCount = msg.length() / 2;
+        if (lenChk == 0){
+            // if msg length % 2 = 0
+            for (int i = 0; i < itrCount; i++) {
+                int temp1 = msg2D[0][i] * key2D[0][0] + msg2D[1][i] * key2D[0][1];
+                encrypText += (char)((temp1 % 26) + 65);
+                int temp2 = msg2D[0][i] * key2D[1][0] + msg2D[1][i] * key2D[1][1];
+                encrypText += (char)((temp2 % 26) + 65);
+            }
+        } else {
+            // if msg length % 2 != 0 (irregular length msg)
+            for (int i = 0; i < itrCount-1; i++) {
+                int temp1 = msg2D[0][i] * key2D[0][0] + msg2D[1][i] * key2D[0][1];
+                encrypText += (char)((temp1 % 26) + 65);
+                int temp2 = msg2D[0][i] * key2D[1][0] + msg2D[1][i] * key2D[1][1];
+                encrypText += (char)((temp2 % 26) + 65);
+            }
+        }
+
+        return encrypText;
     }
 
-    public static void main(String[] args)
-    {
-        // Get the message to be encrypted
-        String message = "ACT";
-
-        String key = "GYBNQKURP";
-
-        HillCipher(message, key);
+    // modulo function
+    public static int moduloFunc(int a, int b){
+        int result = a % b;
+        if (result < 0){
+            result += b;
+        }
+        return result;
     }
 
+
+    public static void main(String[] args){
+        Scanner in;
+        in = new Scanner(System.in);
+        System.out.print("Enter message: ");
+        String msg = in.nextLine();
+        System.out.print("Enter key: ");
+        String key = in.nextLine();
+        System.out.println("Encryption : " + cipherEncryption(msg, key));
+        String cipherText = cipherEncryption(msg, key);
+        System.out.println("Decryption : " + cipherDecryption(cipherText, key));
+    }
 }
+
