@@ -4,6 +4,7 @@ import model.CipherType;
 import security.Affine;
 import security.Caesar;
 import security.Substitution;
+import security.Vigenere;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -99,7 +100,7 @@ public class CipherUtils {
                 break;
 
             case VIGENERE:
-
+                cipherText = Vigenere.encrypt(plainText, key.split(";")[0]);
                 break;
 
             case HILL:
@@ -173,7 +174,7 @@ public class CipherUtils {
                 break;
 
             case VIGENERE:
-
+                plainText = Vigenere.decrypt(cipherText, key.split(";")[0]);
                 break;
 
             case HILL:
@@ -186,4 +187,5 @@ public class CipherUtils {
 
         return plainText;
     }
+
 }

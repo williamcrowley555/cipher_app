@@ -4,11 +4,12 @@ import model.CipherType;
 import util.CipherUtils;
 
 import javax.swing.*;
-import java.awt.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
@@ -27,6 +28,7 @@ public class MainGUI extends JFrame {
     private JTextField txtKey2;
     private JPanel pnlSingleKey;
     private JPanel pnlDoubleKey;
+    private JButton btnFileChooser;
 
     private ButtonGroup cipherGroup;
 
@@ -57,6 +59,58 @@ public class MainGUI extends JFrame {
                 pnlDoubleKey.setVisible(false);
             }
         }
+    }
+
+    private String getExtension(File file) {
+        String fileName = file.toString();
+        int index = fileName.lastIndexOf('.');
+
+        if(index > 0) {
+            return fileName.substring(index + 1);
+        }
+
+        return null;
+    }
+
+    private String readFile() {
+        JFileChooser fileDialog = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("TEXT FILES", "txt", "text");
+        fileDialog.setFileFilter(filter);
+        int returnVal = fileDialog.showOpenDialog(this);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fileDialog.getSelectedFile();
+
+            if (getExtension(file).equals("txt")) {
+                BufferedReader reader;
+                StringBuilder sb = new StringBuilder();
+
+                try {
+                    reader = new BufferedReader(new FileReader(file));
+                    String line = reader.readLine();
+
+                    while(line != null) {
+                        sb.append(line);
+                        sb.append(System.lineSeparator());
+                        line = reader.readLine();
+                    }
+
+                    return sb.toString().trim();
+                }
+                catch (FileNotFoundException e1) {
+                    e1.printStackTrace();
+                }
+                catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "File được chọn phải có định dạng txt!",
+                        "Lỗi",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        return null;
     }
 
     private void addRadioBtnListener(JRadioButton btn, int cipherType) {
@@ -97,6 +151,29 @@ public class MainGUI extends JFrame {
 
     public void initComponents() {
         addCipherTypes(pnlCipherTypes, CipherUtils.get());
+
+        btnFileChooser.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedCipherName = getSelectedButtonText(cipherGroup);
+                CipherType selectedCipher = CipherUtils.get(selectedCipherName);
+
+                if (selectedCipher.getCode() == CipherUtils.AFFINE) {
+                    String keys = readFile();
+
+                    if (keys != null) {
+                        txtKey1.setText(keys.split(";")[0]);
+                        txtKey2.setText(keys.split(";")[1]);
+                    }
+                } else {
+                    String key = readFile();
+
+                    if (key != null) {
+                        txtKey.setText(key);
+                    }
+                }
+            }
+        });
 
         btnEncryption.addMouseListener(new MouseAdapter() {
             @Override
