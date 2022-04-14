@@ -36,12 +36,13 @@ public class MainGUI extends JFrame {
         super();
         setTitle("Cipher App");
         setContentPane(pnlMain);
-        setSize(600, 500);
+        setSize(800, 650);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
         initComponents();
+
     }
 
     private void addCipherTypes(JPanel panel, ArrayList<CipherType> cipherTypes) {

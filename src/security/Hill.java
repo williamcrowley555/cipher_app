@@ -1,9 +1,7 @@
 package security;
 
-import java.util.Scanner;
-
 public class Hill {
-    private static String cipherDecryption(String msg, String key) {
+    public static String decryptCipher(String msg, String key) {
         msg = msg.replaceAll("\\s" , "");
         msg = msg.toUpperCase();
 
@@ -101,7 +99,7 @@ public class Hill {
         return decrypText;
     }
 
-    private static String cipherEncryption(String msg, String key) {
+    public static String encryptMessage(String msg, String key) {
 
         msg = msg.replaceAll("\\s" , "");
         msg = msg.toUpperCase();
@@ -156,7 +154,7 @@ public class Hill {
 
         if (mulInverse == -1){
             System.out.println("invalid key");
-            System.exit(1);
+            return null;
         }
 
         String encrypText = "";
@@ -193,15 +191,15 @@ public class Hill {
 
 
     public static void main(String[] args){
-        Scanner in;
-        in = new Scanner(System.in);
-        System.out.print("Enter message: ");
-        String msg = in.nextLine();
-        System.out.print("Enter key: ");
-        String key = in.nextLine();
-        System.out.println("Encryption : " + cipherEncryption(msg, key));
-        String cipherText = cipherEncryption(msg, key);
-        System.out.println("Decryption : " + cipherDecryption(cipherText, key));
+        String msg = "HELP";
+        String key = "DCDF";
+        /*Key DCDF => 3235 (start from 0 of alphabet z=26)
+         *Order :|3 3|
+         *       |2 5|
+        */
+        System.out.println("Encryption : " + encryptMessage(msg, key));
+        String cipherText = encryptMessage(msg, key);
+        System.out.println("Decryption : " + decryptCipher(cipherText, key));
     }
 }
 

@@ -1,10 +1,7 @@
 package util;
 
 import model.CipherType;
-import security.Affine;
-import security.Caesar;
-import security.Substitution;
-import security.Vigenere;
+import security.*;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -104,7 +101,13 @@ public class CipherUtils {
                 break;
 
             case HILL:
+                cipherText = Hill.encryptMessage(plainText, key);
 
+                if(cipherText == null)
+                    JOptionPane.showMessageDialog(null,
+                            "Khóa không hợp lệ",
+                            "Lỗi",
+                            JOptionPane.ERROR_MESSAGE);
                 break;
 
             default:
@@ -178,7 +181,13 @@ public class CipherUtils {
                 break;
 
             case HILL:
+                plainText = Hill.decryptCipher(cipherText, key);
 
+                if(plainText == null)
+                    JOptionPane.showMessageDialog(null,
+                        "Khóa không hợp lệ",
+                        "Lỗi",
+                        JOptionPane.ERROR_MESSAGE);
                 break;
 
             default:
