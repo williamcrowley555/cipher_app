@@ -5,6 +5,8 @@ import util.CipherUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -21,6 +23,10 @@ public class MainGUI extends JFrame {
     private JPanel pnlCipherTypes;
     private JLabel lblKey;
     private JTextArea txtKey;
+    private JTextField txtKey1;
+    private JTextField txtKey2;
+    private JPanel pnlSingleKey;
+    private JPanel pnlDoubleKey;
 
     private ButtonGroup cipherGroup;
 
@@ -36,16 +42,44 @@ public class MainGUI extends JFrame {
         initComponents();
     }
 
-    public void addCipherTypes(JPanel panel, ArrayList<CipherType> cipherTypes) {
+    private void addCipherTypes(JPanel panel, ArrayList<CipherType> cipherTypes) {
         cipherGroup = new ButtonGroup();
 
         for (int i = 0; i < cipherTypes.size(); ++i) {
             JRadioButton radioBtn = new JRadioButton(cipherTypes.get(i).getName());
+            addRadioBtnListener(radioBtn, cipherTypes.get(i).getCode());
             cipherGroup.add(radioBtn);
             panel.add(radioBtn);
 
-            if (i == 0)
+            if (i == 0) {
                 radioBtn.setSelected(true);
+                pnlSingleKey.setVisible(true);
+                pnlDoubleKey.setVisible(false);
+            }
+        }
+    }
+
+    private void addRadioBtnListener(JRadioButton btn, int cipherType) {
+        switch (cipherType) {
+            case CipherUtils.AFFINE:
+                btn.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        pnlSingleKey.setVisible(false);
+                        pnlDoubleKey.setVisible(true);
+                    }
+                });
+                break;
+
+            default:
+                btn.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        pnlSingleKey.setVisible(true);
+                        pnlDoubleKey.setVisible(false);
+                    }
+                });
+                break;
         }
     }
 
@@ -68,12 +102,20 @@ public class MainGUI extends JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 String plainText = txtInput.getText();
-                String key = txtKey.getText();
+                String selectedCipherName = getSelectedButtonText(cipherGroup);
+                CipherType selectedCipher = CipherUtils.get(selectedCipherName);
+                String key = null;
+
+                if (selectedCipher.getCode() == CipherUtils.AFFINE) {
+                    if (!txtKey1.getText().isEmpty() && !txtKey2.getText().isEmpty()) {
+                        key = txtKey1.getText() + ";" + txtKey2.getText();
+                    }
+                } else {
+                    key = txtKey.getText();
+                }
 
                 if (plainText != null && !plainText.isEmpty() &&
                         key != null && !key.isEmpty()) {
-                    String selectedCipherName = getSelectedButtonText(cipherGroup);
-                    CipherType selectedCipher = CipherUtils.get(selectedCipherName);
 
                     String cipherText = CipherUtils.encrypt(plainText, selectedCipher.getCode(), key);
 
@@ -86,12 +128,20 @@ public class MainGUI extends JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 String cipherText = txtInput.getText();
-                String key = txtKey.getText();
+                String selectedCipherName = getSelectedButtonText(cipherGroup);
+                CipherType selectedCipher = CipherUtils.get(selectedCipherName);
+                String key = null;
+
+                if (selectedCipher.getCode() == CipherUtils.AFFINE) {
+                    if (!txtKey1.getText().isEmpty() && !txtKey2.getText().isEmpty()) {
+                        key = txtKey1.getText() + ";" + txtKey2.getText();
+                    }
+                } else {
+                    key = txtKey.getText();
+                }
 
                 if (cipherText != null && !cipherText.isEmpty() &&
                         key != null && !key.isEmpty()) {
-                    String selectedCipherName = getSelectedButtonText(cipherGroup);
-                    CipherType selectedCipher = CipherUtils.get(selectedCipherName);
 
                     String plainText = CipherUtils.decrypt(cipherText, selectedCipher.getCode(), key);
 

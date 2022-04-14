@@ -1,6 +1,7 @@
 package util;
 
 import model.CipherType;
+import security.Affine;
 import security.Caesar;
 import security.Substitution;
 
@@ -46,7 +47,7 @@ public class CipherUtils {
                 int shift = 0;
 
                 try {
-                    shift = Integer.valueOf(key);
+                    shift = Integer.valueOf(key.split(";")[0]);
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(null,
                             "Khóa phải là số nguyên",
@@ -59,11 +60,42 @@ public class CipherUtils {
                 break;
 
             case SUBSTITUTION:
-                cipherText = Substitution.encode(plainText, key);
+                cipherText = Substitution.encode(plainText, key.split(";")[0]);
                 break;
 
             case AFFINE:
+                String[] splitted = key.split(";");
+                int a, b;
+                try {
+                    a = Integer.valueOf(splitted[0]);
+                    b = Integer.valueOf(splitted[1]);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null,
+                            "Khóa phải là số nguyên",
+                            "Lỗi",
+                            JOptionPane.ERROR_MESSAGE);
+                    break;
+                }
 
+                if (!(StringUtils.isUpperCase(plainText) || StringUtils.isLowerCase(plainText))) {
+                    JOptionPane.showMessageDialog(null,
+                            "Input phải là một chuỗi các ký từ đều là chữ hoa hoặc chữ thường",
+                            "Lỗi",
+                            JOptionPane.ERROR_MESSAGE);
+                    break;
+                }
+
+                boolean isLowerCaseInput = StringUtils.isLowerCase(plainText);
+
+                if (isLowerCaseInput) {
+                    plainText = plainText.toUpperCase();
+                }
+
+                cipherText = Affine.encryptMessage(plainText, a ,b);
+
+                if (isLowerCaseInput) {
+                    cipherText = cipherText.toLowerCase();
+                }
                 break;
 
             case VIGENERE:
@@ -89,7 +121,7 @@ public class CipherUtils {
                 int shift = 0;
 
                 try {
-                    shift = Integer.valueOf(key);
+                    shift = Integer.valueOf(key.split(";")[0]);
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(null,
                             "Khóa phải là số nguyên",
@@ -102,11 +134,42 @@ public class CipherUtils {
                 break;
 
             case SUBSTITUTION:
-                plainText = Substitution.decode(cipherText, key);
+                plainText = Substitution.decode(cipherText, key.split(";")[0]);
                 break;
 
             case AFFINE:
+                String[] splitted = key.split(";");
+                int a, b;
+                try {
+                    a = Integer.valueOf(splitted[0]);
+                    b = Integer.valueOf(splitted[1]);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null,
+                            "Khóa phải là số nguyên",
+                            "Lỗi",
+                            JOptionPane.ERROR_MESSAGE);
+                    break;
+                }
 
+                if (!(StringUtils.isUpperCase(cipherText) || StringUtils.isLowerCase(cipherText))) {
+                    JOptionPane.showMessageDialog(null,
+                            "Input phải là một chuỗi các ký từ đều là chữ hoa hoặc chữ thường",
+                            "Lỗi",
+                            JOptionPane.ERROR_MESSAGE);
+                    break;
+                }
+
+                boolean isLowerCaseInput = StringUtils.isLowerCase(cipherText);
+
+                if (isLowerCaseInput) {
+                    cipherText = cipherText.toUpperCase();
+                }
+
+                plainText = Affine.decryptCipher(cipherText, a ,b);
+
+                if (isLowerCaseInput) {
+                    plainText = plainText.toLowerCase();
+                }
                 break;
 
             case VIGENERE:

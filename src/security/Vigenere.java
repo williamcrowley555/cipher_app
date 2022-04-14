@@ -1,8 +1,7 @@
 package security;
 
 public class Vigenere {
-    static String generateKey(String str, String key)
-    {
+    static String generateKey(String str, String key) {
         int x = str.length();
 
         for (int i = 0; ; i++)
@@ -16,8 +15,7 @@ public class Vigenere {
         return key;
     }
 
-    static String cipherText(String str, String key)
-    {
+    static String cipherText(String str, String key) {
         String cipher_text="";
 
         for (int i = 0; i < str.length(); i++)
@@ -75,8 +73,9 @@ public class Vigenere {
         String keyword = LowerToUpper(Keyword);
 
         String key = generateKey(str, keyword);
-        String cipher_text = cipherText(str, key);
+        System.out.println("Key: " + key);
 
+        String cipher_text = cipherText(str, key);
         System.out.println("Ciphertext : "
                 + cipher_text);
 
