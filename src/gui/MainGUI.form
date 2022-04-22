@@ -135,7 +135,7 @@
           </scrollpane>
         </children>
       </grid>
-      <grid id="4eb01" layout-manager="GridBagLayout">
+      <grid id="4eb01" binding="pnlKey" layout-manager="GridBagLayout">
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -223,7 +223,7 @@
               </component>
             </children>
           </grid>
-          <grid id="3cae9" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+          <grid id="3cae9" binding="pnlFileChooser" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
             <constraints>
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
               <gridbag weightx="0.0" weighty="0.0"/>

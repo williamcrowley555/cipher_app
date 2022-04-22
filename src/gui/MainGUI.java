@@ -1,6 +1,7 @@
 package gui;
 
 import model.CipherType;
+import security.GenerateKeysRSA;
 import util.CipherUtils;
 
 import javax.swing.*;
@@ -10,6 +11,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.*;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
@@ -29,6 +32,8 @@ public class MainGUI extends JFrame {
     private JPanel pnlSingleKey;
     private JPanel pnlDoubleKey;
     private JButton btnFileChooser;
+    private JPanel pnlKey;
+    private JPanel pnlFileChooser;
 
     private ButtonGroup cipherGroup;
 
@@ -126,6 +131,25 @@ public class MainGUI extends JFrame {
                 });
                 break;
 
+            case CipherUtils.RSA:
+                btn.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        pnlSingleKey.setVisible(false);
+                        pnlDoubleKey.setVisible(false);
+                        pnlFileChooser.setVisible(false);
+
+                        try {
+                            new GenerateKeysRSA(1024).generateKeysToFile();
+                        } catch (NoSuchAlgorithmException ex) {
+                            ex.printStackTrace();
+                        } catch (NoSuchProviderException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                });
+                break;
+
             default:
                 btn.addActionListener(new ActionListener() {
                     @Override
@@ -192,11 +216,14 @@ public class MainGUI extends JFrame {
                     key = txtKey.getText();
                 }
 
-                if (plainText != null && !plainText.isEmpty() &&
-                        key != null && !key.isEmpty()) {
+                if (plainText != null && !plainText.isEmpty()) {
+                    if (selectedCipher.getCode() != CipherUtils.RSA) {
+                        if (key != null && !key.isEmpty()) {
+                            return;
+                        }
+                    }
 
                     String cipherText = CipherUtils.encrypt(plainText, selectedCipher.getCode(), key);
-
                     txtOutput.setText(cipherText);
                 }
             }
@@ -218,14 +245,22 @@ public class MainGUI extends JFrame {
                     key = txtKey.getText();
                 }
 
-                if (cipherText != null && !cipherText.isEmpty() &&
-                        key != null && !key.isEmpty()) {
+                if (cipherText != null && !cipherText.isEmpty()) {
+                    if (selectedCipher.getCode() != CipherUtils.RSA) {
+                        if (key != null && !key.isEmpty()) {
+                            return;
+                        }
+                    }
 
-                    String plainText = CipherUtils.decrypt(cipherText, selectedCipher.getCode(), key);
+                    String plainText = null;
+                    try {
+                        plainText = CipherUtils.decrypt(cipherText, selectedCipher.getCode(), key);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
 
                     txtOutput.setText(plainText);
                 }
-
             }
         });
     }

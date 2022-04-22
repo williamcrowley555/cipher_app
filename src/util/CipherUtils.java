@@ -3,9 +3,16 @@ package util;
 import model.CipherType;
 import security.*;
 
+import javax.crypto.Cipher;
 import javax.swing.*;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
+
+import static security.RSA.getPrivateKey;
+import static security.RSA.getPublicKey;
 
 public class CipherUtils {
     public static final int CAESAR = 1;
@@ -13,6 +20,7 @@ public class CipherUtils {
     public static final int AFFINE = 3;
     public static final int VIGENERE = 4;
     public static final int HILL = 5;
+    public static final int RSA = 6;
 
     public static ArrayList<CipherType> get() {
         ArrayList<CipherType> cipherTypes = new ArrayList<>(Arrays.asList(
@@ -20,7 +28,8 @@ public class CipherUtils {
                 new CipherType(SUBSTITUTION, "Substitution"),
                 new CipherType(AFFINE, "Affine"),
                 new CipherType(VIGENERE, "Vigenere"),
-                new CipherType(HILL, "Hill")
+                new CipherType(HILL, "Hill"),
+                new CipherType(RSA, "RSA")
         ));
 
         return cipherTypes;
@@ -110,6 +119,20 @@ public class CipherUtils {
                             JOptionPane.ERROR_MESSAGE);
                 break;
 
+            case RSA:
+                PublicKey publicKey = null;
+                try {
+                    publicKey = getPublicKey();
+                    Cipher cipher = Cipher.getInstance("RSA");
+                    cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+                    byte[] byteEncrypted = cipher.doFinal(plainText.getBytes());
+                    cipherText =  Base64.getEncoder().encodeToString(byteEncrypted);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                break;
+
             default:
                 break;
         }
@@ -117,7 +140,7 @@ public class CipherUtils {
         return cipherText;
     }
 
-    public static String decrypt(String cipherText, int cipherType, String key) {
+    public static String decrypt(String cipherText, int cipherType, String key) throws Exception {
         String plainText = null;
 
         switch (cipherType) {
@@ -188,6 +211,16 @@ public class CipherUtils {
                         "Khóa không hợp lệ",
                         "Lỗi",
                         JOptionPane.ERROR_MESSAGE);
+                break;
+
+            case RSA:
+                PrivateKey privateKey = getPrivateKey();
+                Cipher cipher = Cipher.getInstance("RSA");
+                cipher.init(Cipher.DECRYPT_MODE, privateKey);
+                byte[] byteEncrypted = Base64.getDecoder().decode(cipherText);
+                byte[] byteDecrypted = cipher.doFinal(byteEncrypted);
+                plainText = new String(byteDecrypted);
+
                 break;
 
             default:
