@@ -58,9 +58,9 @@ public class Caesar {
     }
 
     public static void main(String[] args) {
-        //String originalText = "Sanfoundry";
+        String originalText = "Sanfoundry";
         int shiftCount = 3;
-        String originalText = readFile();
+//        String originalText = readFile();
         System.out.println("Original Text  : " + originalText);
         System.out.println("Shift Count : " + shiftCount);
 

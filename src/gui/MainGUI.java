@@ -218,7 +218,7 @@ public class MainGUI extends JFrame {
 
                 if (plainText != null && !plainText.isEmpty()) {
                     if (selectedCipher.getCode() != CipherUtils.RSA) {
-                        if (key != null && !key.isEmpty()) {
+                        if (key == null || key.isEmpty()) {
                             return;
                         }
                     }
@@ -247,7 +247,7 @@ public class MainGUI extends JFrame {
 
                 if (cipherText != null && !cipherText.isEmpty()) {
                     if (selectedCipher.getCode() != CipherUtils.RSA) {
-                        if (key != null && !key.isEmpty()) {
+                        if (key == null || key.isEmpty()) {
                             return;
                         }
                     }
