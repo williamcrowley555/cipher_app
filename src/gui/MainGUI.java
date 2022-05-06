@@ -34,6 +34,10 @@ public class MainGUI extends JFrame {
     private JButton btnFileChooser;
     private JPanel pnlKey;
     private JPanel pnlFileChooser;
+    private JPanel pnlElgamalKey;
+    private JTextField txtSecretKey;
+    private JTextField txtP;
+    private JTextField txtB;
 
     private ButtonGroup cipherGroup;
 
@@ -47,6 +51,7 @@ public class MainGUI extends JFrame {
         setResizable(false);
 
         initComponents();
+
 
     }
 
@@ -127,6 +132,7 @@ public class MainGUI extends JFrame {
                     public void actionPerformed(ActionEvent e) {
                         pnlSingleKey.setVisible(false);
                         pnlDoubleKey.setVisible(true);
+                        pnlElgamalKey.setVisible(false);
                     }
                 });
                 break;
@@ -135,9 +141,10 @@ public class MainGUI extends JFrame {
                 btn.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
+                        pnlFileChooser.setVisible(false);
                         pnlSingleKey.setVisible(false);
                         pnlDoubleKey.setVisible(false);
-                        pnlFileChooser.setVisible(false);
+                        pnlElgamalKey.setVisible(false);
 
                         try {
                             new GenerateKeysRSA(1024).generateKeysToFile();
@@ -150,12 +157,24 @@ public class MainGUI extends JFrame {
                 });
                 break;
 
+            case CipherUtils.ELGAMAL:
+                btn.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        pnlSingleKey.setVisible(false);
+                        pnlDoubleKey.setVisible(false);
+                        pnlElgamalKey.setVisible(true);
+                    }
+                });
+                break;
+
             default:
                 btn.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         pnlSingleKey.setVisible(true);
                         pnlDoubleKey.setVisible(false);
+                        pnlElgamalKey.setVisible(false);
                     }
                 });
                 break;
@@ -176,7 +195,7 @@ public class MainGUI extends JFrame {
 
     public void initComponents() {
         addCipherTypes(pnlCipherTypes, CipherUtils.get());
-
+        pnlElgamalKey.setVisible(false);
         btnFileChooser.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -212,6 +231,16 @@ public class MainGUI extends JFrame {
                     if (!txtKey1.getText().isEmpty() && !txtKey2.getText().isEmpty()) {
                         key = txtKey1.getText() + ";" + txtKey2.getText();
                     }
+                } else if(selectedCipher.getCode() == CipherUtils.ELGAMAL){
+                    key = txtSecretKey.getText();
+                } else {
+                    key = txtKey.getText();
+                }
+
+                if (selectedCipher.getCode() == CipherUtils.ELGAMAL) {
+                    if (!txtSecretKey.getText().isEmpty()) {
+                        key = txtSecretKey.getText();
+                    }
                 } else {
                     key = txtKey.getText();
                 }
@@ -223,7 +252,12 @@ public class MainGUI extends JFrame {
                         }
                     }
 
-                    String cipherText = CipherUtils.encrypt(plainText, selectedCipher.getCode(), key);
+                    String cipherText = null;
+                    try {
+                        cipherText = CipherUtils.encrypt(plainText, selectedCipher.getCode(), key);
+                    } catch (UnsupportedEncodingException ex) {
+                        ex.printStackTrace();
+                    }
                     txtOutput.setText(cipherText);
                 }
             }
@@ -240,6 +274,14 @@ public class MainGUI extends JFrame {
                 if (selectedCipher.getCode() == CipherUtils.AFFINE) {
                     if (!txtKey1.getText().isEmpty() && !txtKey2.getText().isEmpty()) {
                         key = txtKey1.getText() + ";" + txtKey2.getText();
+                    }
+                } else {
+                    key = txtKey.getText();
+                }
+
+                if (selectedCipher.getCode() == CipherUtils.ELGAMAL) {
+                    if (!txtSecretKey.getText().isEmpty()) {
+                        key = txtSecretKey.getText();
                     }
                 } else {
                     key = txtKey.getText();

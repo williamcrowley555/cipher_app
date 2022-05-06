@@ -5,6 +5,8 @@ import security.*;
 
 import javax.crypto.Cipher;
 import javax.swing.*;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ public class CipherUtils {
     public static final int VIGENERE = 4;
     public static final int HILL = 5;
     public static final int RSA = 6;
+    public static final int ELGAMAL = 7;
 
     public static ArrayList<CipherType> get() {
         ArrayList<CipherType> cipherTypes = new ArrayList<>(Arrays.asList(
@@ -29,7 +32,8 @@ public class CipherUtils {
                 new CipherType(AFFINE, "Affine"),
                 new CipherType(VIGENERE, "Vigenere"),
                 new CipherType(HILL, "Hill"),
-                new CipherType(RSA, "RSA")
+                new CipherType(RSA, "RSA"),
+                new CipherType(ELGAMAL, "ElGamal")
         ));
 
         return cipherTypes;
@@ -46,7 +50,7 @@ public class CipherUtils {
         return null;
     }
 
-    public static String encrypt(String plainText, int cipherType, String key) {
+    public static String encrypt(String plainText, int cipherType, String key) throws UnsupportedEncodingException {
         String cipherText = null;
 
         switch (cipherType) {
@@ -129,6 +133,19 @@ public class CipherUtils {
                     cipherText =  Base64.getEncoder().encodeToString(byteEncrypted);
                 } catch (Exception e) {
                     e.printStackTrace();
+                }
+
+                break;
+
+            case ELGAMAL:
+                try{
+                BigInteger keyInt = new BigInteger(key);
+                cipherText = Elgamal.encrypt(plainText, keyInt);
+                } catch (NumberFormatException numE){
+                    JOptionPane.showMessageDialog(null,
+                            "Khóa phải là số nguyên",
+                            "Lỗi",
+                            JOptionPane.ERROR_MESSAGE);
                 }
 
                 break;
@@ -221,6 +238,11 @@ public class CipherUtils {
                 byte[] byteDecrypted = cipher.doFinal(byteEncrypted);
                 plainText = new String(byteDecrypted);
 
+                break;
+
+            case ELGAMAL:
+                BigInteger keyInt = new BigInteger(key);
+                plainText = Elgamal.decrypt(cipherText, keyInt);
                 break;
 
             default:
