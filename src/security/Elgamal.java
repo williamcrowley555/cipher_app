@@ -38,7 +38,7 @@ public class Elgamal {
     }
 
     public static void main(String[] args) throws IOException {
-        String msg = "Hello";
+        String msg = "HelloWorld";
         System.out.println("Message: " + msg);
         BigInteger p, c, secretKey;
         Random sc = new SecureRandom();
